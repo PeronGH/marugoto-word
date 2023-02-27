@@ -24,7 +24,7 @@ export type CEFRLevel = "A1" | "A2-1" | "A2-2";
 export type MarugotoTextbook = "act" | "comp";
 
 export type MarugotoAPIQueryParam = {
-  levels: CEFRLevel[];
+  levels?: CEFRLevel[];
   excluded_levels?: CEFRLevel[];
   topics?: number[];
   lessons?: number[];
