@@ -23,7 +23,7 @@ Deno.test("save processed katsudoo words", async () => {
     kanji: w.KANA !== w.KANJI ? w.KANJI.trim() : undefined,
     romaji: w.ROMAJI.trim(),
     english: w.UWRD.trim(),
-    level: w.ATTR.find((a) => a.text === "act")?.level,
+    level: w.ATTR.find((a) => a.text === "act")!.level,
   }));
 
   await Deno.writeTextFile(
