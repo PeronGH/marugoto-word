@@ -14,3 +14,20 @@ Deno.test("count katsudoo words of different levels", async () => {
 
   console.log(levelCounts);
 });
+
+Deno.test("save processed katsudoo words", async () => {
+  const words = await getVocabulary({ textbooks: ["act"] });
+
+  const processedWords = words.map((w) => ({
+    kana: w.KANA.trim(),
+    kanji: w.KANJI.trim(),
+    romaji: w.ROMAJI.trim(),
+    english: w.UWRD.trim(),
+    level: w.ATTR.find((a) => a.text === "act")?.level,
+  }));
+
+  await Deno.writeTextFile(
+    "marugoto-katsudoo-words.json",
+    JSON.stringify({ data: processedWords, version: 1 }, null, 2),
+  );
+});
