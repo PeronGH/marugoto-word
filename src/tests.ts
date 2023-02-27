@@ -1,4 +1,4 @@
-import { getVocabulary } from "../mod.ts";
+import { CEFRLevel, getVocabulary } from "../mod.ts";
 
 Deno.test("count katsudoo words of different levels", async () => {
   const words = await getVocabulary({ textbooks: ["act"] });
@@ -26,8 +26,30 @@ Deno.test("save processed katsudoo words", async () => {
     level: w.ATTR.find((a) => a.text === "act")!.level,
   }));
 
+  const distinctMap = new Map<string, {
+    kana: string;
+    kanji: string | undefined;
+    romaji: string;
+    english: string;
+    level: CEFRLevel;
+  }>();
+
+  processedWords.forEach((w) => {
+    const key = w.romaji;
+    if (distinctMap.has(key)) {
+      const existing = distinctMap.get(key)!;
+      if (
+        existing.kana === w.kana && existing.kanji === w.kanji &&
+        existing.english === w.english
+      ) {
+        return;
+      }
+    }
+    distinctMap.set(key, w);
+  });
+
   await Deno.writeTextFile(
     "marugoto-katsudoo-words.json",
-    JSON.stringify({ data: processedWords, version: 1 }, null, 2),
+    JSON.stringify({ data: [...distinctMap.values()], version: 1 }, null, 2),
   );
 });
