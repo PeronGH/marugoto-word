@@ -20,7 +20,7 @@ Deno.test("save processed katsudoo words", async () => {
 
   const processedWords = words.map((w) => ({
     kana: w.KANA.trim(),
-    kanji: w.KANA !== w.KANJI ? w.KANJI.trim() : undefined,
+    kanji: w.KANA.trim() !== w.KANJI.trim() ? w.KANJI.trim() : undefined,
     romaji: w.ROMAJI.trim(),
     english: w.UWRD.trim(),
     level: w.ATTR.find((a) => a.text === "act")!.level,
@@ -35,7 +35,7 @@ Deno.test("save processed katsudoo words", async () => {
   }>();
 
   processedWords.forEach((w) => {
-    const key = w.romaji;
+    const key = w.romaji + (w.kanji ?? "");
     if (distinctMap.has(key)) {
       const existing = distinctMap.get(key)!;
       if (
