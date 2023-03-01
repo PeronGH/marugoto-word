@@ -10,8 +10,7 @@ export async function getVocabulary(
     excluded_wordclass,
   }: MarugotoAPIQueryParam = {},
 ): Promise<MarugotoWord[]> {
-  const url = new URL("https://words.marugotoweb.jp/SearchCategoryAPI");
-  url.searchParams.append("ut", "en");
+  const url = new URL("https://words.marugotoweb.jp/SearchCategoryAPI?ut=en");
 
   url.searchParams.append("lv", levels?.join(",") ?? "A1,A2-1,A2-2");
   url.searchParams.append("tx", textbooks?.join(",") ?? "act,comp");
@@ -22,8 +21,20 @@ export async function getVocabulary(
   url.searchParams.append("learn_ex", excluded_levels?.join(",") ?? "");
   url.searchParams.append("class_ex", excluded_wordclass?.join(",") ?? "");
 
-  const response = await fetch(url).then((res) => res.json());
-  const words = response.DATA as MarugotoWord[];
+  return fetch(url)
+    .then((res) => res.json())
+    .then((json) => json.DATA)
+    .catch(() => []);
+}
 
-  return words;
+export function searchVocabulary(query: string): Promise<MarugotoWord[]> {
+  const url = new URL(
+    "https://words.marugotoweb.jp/keywords/searchAPI?ut=en&m=65535",
+  );
+  url.searchParams.append("q", query);
+
+  return fetch(url)
+    .then((res) => res.json())
+    .then((json) => json.DATA)
+    .catch(() => []);
 }

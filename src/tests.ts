@@ -1,4 +1,4 @@
-import { CEFRLevel, getVocabulary } from "../mod.ts";
+import { getVocabulary, MarugotoWord, searchVocabulary } from "../mod.ts";
 
 Deno.test("count katsudoo words of different levels", async () => {
   const words = await getVocabulary({ textbooks: ["act"] });
@@ -15,41 +15,28 @@ Deno.test("count katsudoo words of different levels", async () => {
   console.log(levelCounts);
 });
 
-Deno.test("save processed katsudoo words", async () => {
-  const words = await getVocabulary({ textbooks: ["act"] });
+Deno.test("get all words and save", async () => {
+  const processWord = (w: MarugotoWord) =>
+    JSON.stringify(
+      {
+        kanji: w.KANJI !== w.KANA ? w.KANJI : undefined,
+        kana: w.KANA,
+        romaji: w.ROMAJI,
+        english: w.UWRD,
+      },
+    );
 
-  const processedWords = words.map((w) => ({
-    kana: w.KANA.trim(),
-    kanji: w.KANA.trim() !== w.KANJI.trim() ? w.KANJI.trim() : undefined,
-    romaji: w.ROMAJI.trim(),
-    english: w.UWRD.trim(),
-    level: w.ATTR.find((a) => a.text === "act")!.level,
-  }));
+  const wordSet = new Set<string>();
 
-  const distinctMap = new Map<string, {
-    kana: string;
-    kanji: string | undefined;
-    romaji: string;
-    english: string;
-    level: CEFRLevel;
-  }>();
-
-  processedWords.forEach((w) => {
-    const key = w.romaji + (w.kanji ?? "");
-    if (distinctMap.has(key)) {
-      const existing = distinctMap.get(key)!;
-      if (
-        existing.kana === w.kana && existing.kanji === w.kanji &&
-        existing.english === w.english
-      ) {
-        return;
-      }
-    }
-    distinctMap.set(key, w);
-  });
+  for (const letter of "aiueo") {
+    console.debug(`Searching for words including ${letter}...`);
+    const words = await searchVocabulary(letter);
+    words.forEach((w) => wordSet.add(processWord(w)));
+    console.debug(`Word set size: ${wordSet.size}`);
+  }
 
   await Deno.writeTextFile(
     "marugoto-katsudoo-words.json",
-    JSON.stringify({ data: [...distinctMap.values()], version: 1 }, null, 2),
+    JSON.stringify([...wordSet].map((w) => JSON.parse(w)), null, 2),
   );
 });

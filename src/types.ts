@@ -1,5 +1,5 @@
 export type MarugotoWord = {
-  ID: string;
+  ID: number | number[];
   RAWID: string;
   KANA: string;
   KANJI: string;
