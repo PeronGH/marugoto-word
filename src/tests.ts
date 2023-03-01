@@ -35,8 +35,18 @@ Deno.test("get all words and save", async () => {
     console.debug(`Word set size: ${wordSet.size}`);
   }
 
+  const wordList = [...wordSet]
+    .map((w) => JSON.parse(w))
+    .sort((a, b) => a.romaji.localeCompare(b.romaji));
+
   await Deno.writeTextFile(
     "marugoto-katsudoo-words.json",
-    JSON.stringify([...wordSet].map((w) => JSON.parse(w)), null, 2),
+    JSON.stringify(
+      {
+        data: wordList,
+      },
+      null,
+      2,
+    ),
   );
 });

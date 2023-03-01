@@ -1,6 +1,6 @@
 import { MarugotoAPIQueryParam, MarugotoWord } from "./types.ts";
 
-export async function getVocabulary(
+export function getVocabulary(
   {
     levels,
     topics,
